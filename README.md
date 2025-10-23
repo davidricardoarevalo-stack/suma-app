@@ -117,3 +117,77 @@ Suma dos números enviados en el body de la petición.
 4. Ve el resultado de la suma
 
 ¡Disfruta de tu aplicación de suma! 🎉
+
+## 🚀 Despliegue en Producción
+
+### Opción 1: Vercel (Recomendado)
+```bash
+# Instalar Vercel CLI
+npm i -g vercel
+
+# En el directorio raíz
+vercel
+
+# Configurar variables de entorno en Vercel Dashboard:
+# NODE_ENV=production
+# FRONTEND_URL=https://tu-dominio.vercel.app
+```
+
+### Opción 2: Heroku
+```bash
+# Instalar Heroku CLI
+heroku create tu-suma-app
+
+# Configurar variables de entorno
+heroku config:set NODE_ENV=production
+heroku config:set FRONTEND_URL=https://tu-suma-app.herokuapp.com
+
+# Desplegar
+git push heroku main
+```
+
+### Opción 3: Railway
+1. Conecta tu repositorio GitHub en https://railway.app
+2. Configura variables de entorno:
+   - `NODE_ENV=production`
+   - `FRONTEND_URL=https://tu-dominio.railway.app`
+3. Railway detecta automáticamente Node.js
+
+### Opción 4: DigitalOcean App Platform
+1. Conecta tu repo en https://cloud.digitalocean.com/apps
+2. Configura dos servicios:
+   - **Backend:** Node.js service (backend/)
+   - **Frontend:** Static site (frontend/build)
+
+## 🛠️ Scripts Disponibles (Raíz)
+
+- `npm run dev` - Ejecuta backend y frontend simultáneamente
+- `npm run build` - Construye el frontend para producción
+- `npm start` - Ejecuta solo el backend (producción)
+- `npm run install-deps` - Instala dependencias de ambos proyectos
+
+## 🌍 Variables de Entorno
+
+### Backend (.env)
+```
+PORT=5000
+NODE_ENV=production
+FRONTEND_URL=https://tu-dominio.com
+```
+
+### Frontend (.env)
+```
+REACT_APP_API_URL=https://tu-api.com
+REACT_APP_ENV=production
+```
+
+## 📦 Preparación para Producción
+
+1. **Construir frontend:**
+   ```bash
+   cd frontend && npm run build
+   ```
+
+2. **Configurar variables de entorno según la plataforma**
+
+3. **Verificar que el backend sirve archivos estáticos en producción**

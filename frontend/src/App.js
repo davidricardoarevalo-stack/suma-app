@@ -9,6 +9,10 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // URL base de la API
+  const API_URL = process.env.REACT_APP_API_URL || 
+    (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -28,7 +32,7 @@ function App() {
       }
 
       // Hacer petición al backend
-      const response = await axios.post('/api/sum', {
+      const response = await axios.post(`${API_URL}/api/sum`, {
         num1: numero1,
         num2: numero2
       });

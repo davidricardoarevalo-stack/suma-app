@@ -1,12 +1,27 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+    origin: NODE_ENV === 'production' 
+        ? process.env.FRONTEND_URL || 'https://tu-dominio.com'
+        : 'http://localhost:3000',
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
+
+// Servir archivos estáticos en producción
+if (NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../frontend/build')));
+}
 
 // Ruta de prueba
 app.get('/', (req, res) => {
@@ -39,6 +54,13 @@ app.post('/api/sum', (req, res) => {
         });
     }
 });
+
+// Servir frontend en producción
+if (NODE_ENV === 'production') {
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+    });
+}
 
 app.listen(PORT, () => {
     console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
