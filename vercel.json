@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "functions": {
+    "api/sum.js": {
+      "runtime": "@vercel/node"
+    }
+  },
   "builds": [
     {
       "src": "frontend/package.json",
@@ -10,6 +15,10 @@
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "frontend/build/$1"

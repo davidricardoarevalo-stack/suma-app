@@ -1,5 +1,5 @@
 // Health check endpoint para Vercel
-export default function handler(req, res) {
+module.exports = (req, res) => {
     // Configurar CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -18,4 +18,4 @@ export default function handler(req, res) {
         environment: 'production',
         platform: 'Vercel Serverless'
     });
-}
+};
