@@ -1,0 +1,34 @@
+INSTRUCCIONES PARA SUBIR A BLUEHOST
+===================================
+
+1. SUBIR ARCHIVOS:
+   - Subir contenido de 'public_html/' al directorio public_html de tu cPanel
+   - Subir contenido de 'nodejs/' a un directorio como 'suma-app' en tu hosting
+
+2. CONFIGURAR NODE.JS EN CPANEL:
+   - Ir a cPanel > Software > Node.js
+   - Crear nueva aplicación Node.js
+   - Directorio de la aplicación: suma-app (o donde subiste los archivos)
+   - Archivo de inicio: app.js
+   - Versión de Node.js: 16.x o superior
+
+3. CONFIGURAR VARIABLES DE ENTORNO:
+   - En cPanel Node.js, agregar variables:
+     * NODE_ENV=production
+     * PORT=3000 (o el puerto asignado por Bluehost)
+
+4. INSTALAR DEPENDENCIAS:
+   - En el terminal de cPanel Node.js, ejecutar: npm install
+
+5. CONFIGURAR DOMINIO:
+   - Editar el archivo .env en nodejs/
+   - Cambiar tu-dominio.com por tu dominio real
+
+6. INICIAR APLICACIÓN:
+   - En cPanel Node.js, hacer clic en "Restart"
+
+7. VERIFICAR:
+   - Visitar https://tu-dominio.com/health
+   - Debería mostrar estado OK
+
+¡Tu aplicación estará funcionando en tu dominio de Bluehost!
