@@ -191,3 +191,209 @@ REACT_APP_ENV=production
 2. **Configurar variables de entorno según la plataforma**
 
 3. **Verificar que el backend sirve archivos estáticos en producción**
+
+## 🏠 Despliegue en Servidor Propio
+
+### Requisitos del Servidor
+- **OS:** Ubuntu 20.04+ / CentOS 8+ / Debian 11+
+- **Node.js:** v16.0.0 o superior
+- **RAM:** Mínimo 1GB (recomendado 2GB+)
+- **Almacenamiento:** 10GB libres
+- **Acceso:** SSH con privilegios sudo
+
+### 🚀 Instalación Automática (Recomendado)
+
+```bash
+# 1. Conectar al servidor
+ssh usuario@tu-servidor.com
+
+# 2. Descargar y ejecutar script de instalación
+wget https://raw.githubusercontent.com/davidricardoarevalo-stack/suma-app/main/install.sh
+chmod +x install.sh
+bash install.sh
+```
+
+### 📋 Instalación Manual
+
+#### 1. Preparar el Servidor
+```bash
+# Actualizar sistema
+sudo apt update && sudo apt upgrade -y
+
+# Instalar Node.js 18.x
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Instalar PM2, Nginx y Git
+sudo npm install -g pm2
+sudo apt install nginx git -y
+```
+
+#### 2. Clonar y Configurar la Aplicación
+```bash
+# Crear directorio
+sudo mkdir -p /var/www
+cd /var/www
+
+# Clonar repositorio
+sudo git clone https://github.com/davidricardoarevalo-stack/suma-app.git
+sudo chown -R $USER:$USER suma-app
+cd suma-app
+
+# Instalar dependencias del backend
+cd backend
+npm install --production
+cd ..
+
+# Instalar dependencias y construir frontend
+cd frontend
+npm install
+npm run build
+cd ..
+```
+
+#### 3. Configurar Variables de Entorno
+```bash
+# Copiar y editar archivo de configuración
+cp backend/.env.production backend/.env
+
+# Editar con tu dominio
+nano backend/.env
+```
+
+Cambiar `tu-dominio.com` por tu dominio real.
+
+#### 4. Configurar PM2
+```bash
+# Crear directorio de logs
+sudo mkdir -p /var/log/suma-app
+sudo chown $USER:$USER /var/log/suma-app
+
+# Iniciar con PM2
+pm2 start ecosystem.config.js --env production
+
+# Configurar inicio automático
+pm2 startup
+pm2 save
+```
+
+#### 5. Configurar Nginx
+```bash
+# Copiar configuración
+sudo cp nginx.conf /etc/nginx/sites-available/suma-app
+
+# Editar configuración con tu dominio
+sudo nano /etc/nginx/sites-available/suma-app
+
+# Habilitar sitio
+sudo ln -s /etc/nginx/sites-available/suma-app /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default
+
+# Verificar configuración
+sudo nginx -t
+
+# Reiniciar Nginx
+sudo systemctl restart nginx
+```
+
+#### 6. Configurar SSL con Let's Encrypt (Opcional pero Recomendado)
+```bash
+# Instalar Certbot
+sudo apt install certbot python3-certbot-nginx -y
+
+# Obtener certificado SSL
+sudo certbot --nginx -d tu-dominio.com -d www.tu-dominio.com
+
+# Configurar renovación automática
+sudo crontab -e
+# Agregar línea:
+# 0 12 * * * /usr/bin/certbot renew --quiet
+```
+
+### 🔄 Actualización de la Aplicación
+
+Para futuras actualizaciones, usa el script de despliegue:
+
+```bash
+cd /var/www/suma-app
+bash deploy.sh
+```
+
+### 📊 Monitoreo y Mantenimiento
+
+```bash
+# Ver estado de la aplicación
+pm2 status
+
+# Ver logs en tiempo real
+pm2 logs suma-app
+
+# Reiniciar aplicación
+pm2 restart suma-app
+
+# Ver uso de recursos
+pm2 monit
+
+# Estado de Nginx
+sudo systemctl status nginx
+
+# Logs de Nginx
+sudo tail -f /var/log/nginx/suma-app.access.log
+sudo tail -f /var/log/nginx/suma-app.error.log
+```
+
+### 🔧 Solución de Problemas
+
+#### Aplicación no responde
+```bash
+pm2 restart suma-app
+pm2 logs suma-app --lines 50
+```
+
+#### Error 502 Bad Gateway
+```bash
+# Verificar que la app esté ejecutándose
+pm2 status
+
+# Verificar configuración de Nginx
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+#### Problemas de permisos
+```bash
+sudo chown -R $USER:$USER /var/www/suma-app
+sudo chmod -R 755 /var/www/suma-app
+```
+
+### 🚨 Respaldo y Seguridad
+
+#### Crear respaldo
+```bash
+# Respaldo automático (agregar a crontab)
+tar -czf /backups/suma-app-$(date +%Y%m%d).tar.gz /var/www/suma-app
+```
+
+#### Configurar Firewall
+```bash
+# Permitir puertos necesarios
+sudo ufw allow ssh
+sudo ufw allow 80
+sudo ufw allow 443
+sudo ufw enable
+```
+
+### 📈 Optimización para Producción
+
+#### Para mayor tráfico:
+- Usar múltiples instancias con PM2 cluster mode
+- Configurar load balancing con Nginx
+- Implementar Redis para cache
+- Usar CDN para archivos estáticos
+
+#### Configuración PM2 optimizada:
+```bash
+pm2 start ecosystem.config.js --env production
+```
+
+El archivo `ecosystem.config.js` ya está configurado para usar múltiples instancias.
