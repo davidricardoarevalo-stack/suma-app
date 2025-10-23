@@ -397,3 +397,226 @@ pm2 start ecosystem.config.js --env production
 ```
 
 El archivo `ecosystem.config.js` ya está configurado para usar múltiples instancias.
+
+## 🔵 Despliegue en Bluehost
+
+Bluehost es un hosting compartido que soporta Node.js. Aquí te explico cómo desplegar tu aplicación:
+
+### 📋 Requisitos Previos
+- Plan de hosting de Bluehost con soporte para Node.js
+- Acceso a cPanel
+- Dominio configurado
+
+### 🚀 Opción 1: Despliegue Automático (RECOMENDADO)
+
+```bash
+# 1. Preparar archivos para Bluehost
+bash build-bluehost.sh
+
+# 2. Se creará un archivo suma-app-bluehost.zip
+# 3. Subir este archivo a tu hosting y extraerlo
+```
+
+### 📋 Opción 2: Despliegue Manual
+
+#### Paso 1: Preparar la Aplicación Localmente
+```bash
+# Construir frontend
+cd frontend
+npm install
+npm run build
+cd ..
+
+# Preparar backend
+cd backend
+npm install --production
+```
+
+#### Paso 2: Configurar Node.js en cPanel
+1. **Acceder a cPanel** de tu cuenta Bluehost
+2. **Buscar "Node.js"** en la sección Software
+3. **Crear nueva aplicación Node.js:**
+   - **Versión Node.js:** 16.x o superior
+   - **Directorio de la aplicación:** `suma-app`
+   - **Archivo de inicio:** `app.js`
+   - **Dominio:** tu-dominio.com
+
+#### Paso 3: Subir Archivos
+
+**Frontend (public_html):**
+```
+public_html/
+├── index.html
+├── static/
+│   ├── css/
+│   ├── js/
+│   └── media/
+├── .htaccess
+└── otros archivos del build
+```
+
+**Backend (directorio Node.js):**
+```
+suma-app/
+├── app.js (server-bluehost.js renombrado)
+├── package.json
+├── .env
+└── node_modules/ (se instala automáticamente)
+```
+
+#### Paso 4: Configurar Variables de Entorno en cPanel
+En la configuración de Node.js, agregar:
+```
+NODE_ENV=production
+PORT=3000
+FRONTEND_URL=https://tu-dominio.com
+```
+
+#### Paso 5: Instalar Dependencias
+En el terminal de Node.js en cPanel:
+```bash
+npm install
+```
+
+#### Paso 6: Configurar el Archivo .env
+Editar el archivo `.env` en el directorio de Node.js:
+```env
+PORT=3000
+NODE_ENV=production
+FRONTEND_URL=https://tu-dominio.com
+API_BASE_URL=https://tu-dominio.com
+```
+
+#### Paso 7: Configurar .htaccess
+El archivo `.htaccess` debe estar en `public_html/` con el contenido proporcionado.
+
+#### Paso 8: Iniciar la Aplicación
+1. En cPanel Node.js, hacer clic en **"Restart"**
+2. Verificar que el estado sea **"Running"**
+
+### 🔧 Configuración Específica para Bluehost
+
+#### Estructura de Archivos Recomendada:
+```
+📁 Cuenta Bluehost/
+├── 📁 public_html/           # Frontend (React construido)
+│   ├── index.html
+│   ├── static/
+│   └── .htaccess
+├── 📁 suma-app/              # Backend (Node.js)
+│   ├── app.js
+│   ├── package.json
+│   ├── .env
+│   └── node_modules/
+└── 📁 logs/                  # Logs (opcional)
+```
+
+#### Configuración de Dominios:
+- **Dominio principal:** `https://tu-dominio.com`
+- **API endpoint:** `https://tu-dominio.com/api/sum`
+- **Health check:** `https://tu-dominio.com/health`
+
+### 🧪 Verificación del Despliegue
+
+#### 1. Verificar Backend:
+```
+https://tu-dominio.com/health
+```
+Debería mostrar:
+```json
+{
+  "status": "OK",
+  "message": "Servidor de suma funcionando correctamente en Bluehost",
+  "timestamp": "2024-XX-XX...",
+  "environment": "production"
+}
+```
+
+#### 2. Verificar Frontend:
+```
+https://tu-dominio.com
+```
+Debería cargar la interfaz de la calculadora.
+
+#### 3. Verificar API:
+```
+POST https://tu-dominio.com/api/sum
+Content-Type: application/json
+
+{
+  "num1": 5,
+  "num2": 3
+}
+```
+
+### 🛠️ Solución de Problemas en Bluehost
+
+#### Aplicación no inicia:
+```bash
+# En terminal de Node.js cPanel
+npm install
+# Verificar logs en cPanel
+```
+
+#### Error 500:
+- Verificar que el archivo `app.js` existe
+- Verificar permisos de archivos (755 para directorios, 644 para archivos)
+- Revisar logs en cPanel > Error Logs
+
+#### Frontend no se ve:
+- Verificar que los archivos están en `public_html/`
+- Verificar que `.htaccess` está configurado correctamente
+- Limpiar caché del navegador
+
+#### API no responde:
+- Verificar que Node.js está ejecutándose en cPanel
+- Verificar configuración de variables de entorno
+- Probar endpoint de health: `/health`
+
+### 📊 Monitoreo en Bluehost
+
+#### Ver logs:
+- **cPanel > Error Logs** para errores generales
+- **Node.js App > Log** para logs de la aplicación
+
+#### Reiniciar aplicación:
+- **cPanel > Node.js > Restart**
+
+#### Verificar recursos:
+- **cPanel > Resource Usage** para CPU/memoria
+
+### 🔄 Actualización de la Aplicación
+
+Para actualizar la aplicación en Bluehost:
+
+```bash
+# 1. Preparar nueva versión
+bash build-bluehost.sh
+
+# 2. Respaldar archivos actuales en Bluehost
+# 3. Subir nuevos archivos
+# 4. Reiniciar aplicación en cPanel
+```
+
+### 💡 Consejos para Bluehost
+
+1. **Optimización:**
+   - Usar GZIP compression (habilitado en .htaccess)
+   - Configurar caché de navegador
+   - Minimizar archivos CSS/JS
+
+2. **Seguridad:**
+   - Usar HTTPS (certificado SSL gratuito de Bluehost)
+   - Proteger archivos .env
+   - Configurar headers de seguridad
+
+3. **Rendimiento:**
+   - Usar CDN de Bluehost si está disponible
+   - Optimizar imágenes
+   - Monitorear uso de recursos
+
+### 📞 Soporte
+Si tienes problemas, puedes:
+- Contactar soporte de Bluehost
+- Revisar documentación de Node.js en Bluehost
+- Verificar limitaciones de tu plan de hosting
